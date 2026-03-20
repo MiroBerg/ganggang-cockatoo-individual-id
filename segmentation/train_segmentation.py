@@ -10,6 +10,7 @@ print("CUDA available:", torch.cuda.is_available())
 config = "...path_to.../config.yaml"  
 
 # Load YOLO model
+# Base YOLO model when training from scratch, trained YOLO model when retraining
 seg_model = YOLO("...path_to.../yolo11l-seg.pt")
 
 # Set model save directory
