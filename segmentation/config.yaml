@@ -1,0 +1,6 @@
+path: /home/aplin-ai-1/Documents/final/00_segmentation/dataset/yolo_dataset/
+train: images/train
+val: images/val
+
+names:
+    0: ganggang
