@@ -16,8 +16,6 @@ from tensorflow.keras.optimizers import Adam, SGD
 from tensorflow.keras.callbacks import ModelCheckpoint, Callback, EarlyStopping
 from tensorflow.keras.layers import Activation, Dropout, Dense, Flatten, GlobalAveragePooling2D, BatchNormalization
 
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
-
 # Check if GPU is detected
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 
