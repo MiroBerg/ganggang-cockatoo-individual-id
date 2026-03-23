@@ -1,5 +1,6 @@
 from tensorflow.keras.models import load_model
 from tensorflow.keras.applications.efficientnet import preprocess_input
+from tensorflow.keras.preprocessing import image
 import pandas as pd
 import cv2
 import numpy as np
