@@ -96,5 +96,5 @@ history = model.fit(train_generator_data,
           epochs=5)
 
 # Save model
-filepath = "...path_to.../individual_model.keras"
+filepath = "...path_to.../backbone_individual_model.keras"
 model.save(filepath)
