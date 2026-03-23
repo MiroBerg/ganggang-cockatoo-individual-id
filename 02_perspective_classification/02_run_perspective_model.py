@@ -1,0 +1,52 @@
+from tensorflow.keras.models import load_model
+import pandas as pd
+import cv2
+import numpy as np
+from tqdm import tqdm
+
+# Load ANU
+anu_csv = pd.read_csv("...path_to.../anu_csv.csv")
+
+# Add new columns for the perspective and confidence
+single_anu_csv["persp_label"] = ""
+single_anu_csv["persp_conf"] = ""
+
+# Import model
+persp_model = load_model("/home/aplin-ai-1/Documents/final/final_models/persp_ANU_COOK.keras")
+
+# Load image size of the model
+_, height, width, channels = persp_model.input_shape
+target_size = (width, height)
+
+# Set labels of classes
+labels = ["f", "r", "l", "b"]
+
+# Preprocess image
+def preprocess_image(img_path):
+    img = cv2.imread(img_path) # Load image
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) # Change to rgb
+    img = cv2.resize(img, target_size) # Resize image to target size (defined above)
+    img = img / 255.0 # Normalize image to 0-1
+    img = np.expand_dims(img, axis=0) # Add batch dimension
+    return img
+
+# Function to run model on row
+def run_perspective(row):
+    if row["seg_conf"] not in [None, ""] and float(row["seg_conf"]) >= 0.8:
+        file_path = "/home/aplin-ai-1/Documents/final/00d_run_segmentation_cook/dataset/cropped_single/" + row["img_name"] + ".JPG"
+        img = preprocess_image(file_path)
+        preds = persp_model.predict(img, verbose=0)
+        preds = preds[0] # Remove batch dimension
+        
+        top_index = np.argmax(preds)  # Get index of highest predicted class
+        top_conf = preds[top_index]   # Get top confidence of that class
+        top_label = labels[top_index]
+        
+        row["persp_label"] = top_label
+        row["persp_conf"] = top_conf
+    return row
+
+tqdm.pandas(desc="Processing Images") # Set pandas tqdm title
+single_anu_csv = single_anu_csv.progress_apply(run_perspective, axis=1) # Apply function to all rows
+
+single_anu_csv.to_csv("/home/aplin-ai-1/Documents/final/01d_run_perspective_cook/csv_files/single_cook_csv_persp.csv", index=False)
