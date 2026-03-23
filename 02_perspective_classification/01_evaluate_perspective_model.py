@@ -10,7 +10,7 @@ val_data = pd.read_csv("...path_to.../validation_dataset.csv")
 agesex_model = load_model("...path_to.../perspective_model.keras")
 
 # Create columns
-test_data["pred_persp"] = ""
+val_data["pred_persp"] = ""
 
 # Perspective dictionary
 persp_dict = {"0": "f", "1": "r", "2": "l", "3": "b"}
@@ -37,7 +37,7 @@ for index, row in tqdm(val_data.iterrows(), total=len(val_data)):
 classes = ["f", "r", "l", "b"]
 
 # Compute confusion matrix
-cm = confusion_matrix(label_csv["true_persp"], label_csv["pred_persp"], labels=classes)
+cm = confusion_matrix(val_data["true_persp"], val_data["pred_persp"], labels=classes)
 
 # Normalize by row (proportional)
 cm_normalized = np.round((cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]), 3)
