@@ -10,8 +10,8 @@ from tqdm import tqdm
 anu_csv = pd.read_csv("...path_to.../anu_csv.csv")
 
 # Add new columns for the perspective and confidence
-single_anu_csv["persp_label"] = ""
-single_anu_csv["persp_conf"] = ""
+anu_csv["persp_label"] = ""
+anu_csv["persp_conf"] = ""
 
 # Import model
 persp_model = load_model("...path_to.../persp_model.keras")
@@ -25,11 +25,10 @@ labels = ["f", "r", "l", "b"]
 
 # Preprocess image
 def preprocess_image(img_path):
-    img = cv2.imread(img_path) # Load image
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) # Change to rgb
-    img = cv2.resize(img, target_size) # Resize image to target size
-    img = img / 255.0 # Normalize image to 0-1
-    img = np.expand_dims(img, axis=0) # Add batch dimension
+    img = image.load_img(img_path, target_size = target_size) # Load image
+    img = image.img_to_array(img)
+    img = np.expand_dims(img, axis=0)
+    img = preprocess_input(img) # Apply preprocessing functoin
     return img
 
 # Run perspective model for each row
@@ -49,6 +48,6 @@ def run_perspective(row):
     return row
 
 tqdm.pandas(desc="Processing Images") # Set pandas tqdm title
-single_anu_csv = single_anu_csv.progress_apply(run_perspective, axis=1) # Apply function to all rows
+anu_csv = anu_csv.progress_apply(run_perspective, axis=1) # Apply function to all rows
 
-single_anu_csv.to_csv("/home/aplin-ai-1/Documents/final/01d_run_perspective_cook/csv_files/single_cook_csv_persp.csv", index=False)
+anu_csv.to_csv("...path_to.../persp_csv.csv", index=False)
