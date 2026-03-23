@@ -56,9 +56,45 @@ with open(ind_dict_path, "r") as f:
         key = key.strip()
         value = int(value.strip())
         ind_dict[key] = value
-
 for index, row in train_data.iterrows():
     train_data.loc[index, "ind_num"] = str(ind_dict[str(row["individual_1"])])
 
-for index, row in val_data.iterrows():
-    val_data.loc[index, "ind_num"] = str(ind_dict[str(row["individual_1"])])
+# Training image generator
+train_generator = ImageDataGenerator(
+    brightness_range=[0.65, 1.35],
+    zoom_range=0.3,
+    width_shift_range=0.2,
+    height_shift_range=0.2
+)
+train_generator_data = train_generator.flow_from_dataframe(
+    train_data,
+    x_col="file_path",
+    y_col="ind_num",
+    target_size = (384, 384),                                          
+    batch_size=32,
+    shuffle=True,
+    class_mode="sparse",
+    color_mode="rgb",
+    preprocessing_function = preprocess_input)
+
+# Define architecture
+base = EfficientNetV2M(weights='imagenet', include_top=False, input_shape=(384, 384, 3))
+x = GlobalAveragePooling2D()(base.output)
+x = Dense(256, activation='relu')(x)
+x = Dropout(0.5)(x)
+predictors = Dense(train_data["ind_num"].nunique(), activation='softmax')(x)
+model = Model(inputs=base.input, outputs=predictors)
+
+# Compile the model
+model.compile(loss='sparse_categorical_crossentropy',
+              optimizer=Adam(learning_rate=1e-5),
+              metrics=['acc'])
+
+# Train model
+history = model.fit(train_generator_data,
+          steps_per_epoch=len(train_generator_data),
+          epochs=5)
+
+# Save model
+filepath = "...path_to.../individual_model.keras"
+model.save(filepath)
